@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 
 WIDTH = 512
 HEIGHT = 512
@@ -20,9 +21,9 @@ class Move:
     row_to_rank = {value: key for key, value in rank_to_row.items()}
     col_to_file = {value: key for key, value in file_to_col.items()}
 
-    def __init__(self, start_pos, end_pos, board) -> None:
-        self.start_row, self.start_col = start_pos[0], start_pos[1]
-        self.end_row, self.end_col = end_pos[0], end_pos[1]
+    def __init__(self, start_pos, end_pos, board):
+        self.start_row, self.start_col = start_pos
+        self.end_row, self.end_col = end_pos
         self.moved_piece = board[self.start_row][self.start_col]
         self.captured_piece = board[self.end_row][self.end_col]
 
@@ -58,7 +59,7 @@ class Match:
 
 def load_piece_images():
     for piece in PIECES:
-        image = pygame.image.load(f"../images/{piece}.png")
+        image = pygame.image.load(f"/home/cana/Documents/CanaChess/pieces/{piece}.png")
         IMAGES[piece] = pygame.transform.scale(image, (SQUARE_SIZE, SQUARE_SIZE))
 
 
