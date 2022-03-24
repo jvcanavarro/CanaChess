@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 from enum import Enum
-from hashlib import new
-from pprint import pprint
 from tabulate import tabulate
 from aenum import MultiValueEnum
 import string
 
+BOARD_RANGE = range(0, 64, 8)
+
+NEW_GAME_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+RANDOM_POS_FEN = "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1"
+
 
 class Type(MultiValueEnum):
-    # NONE = 0
     _init_ = "value code"
     EMPTY = 0, "e"
     KING = 1, "k"
@@ -20,11 +22,11 @@ class Type(MultiValueEnum):
 
 
 class Color(Enum):
-    WHITE = 0
-    BLACK = 1
+    BLACK = 0
+    WHITE = 1
 
 
-chrs = {
+unicode_pieces = {
     (Color.WHITE, Type.EMPTY): "\u25FB",
     (Color.WHITE, Type.PAWN): "\u265F",
     (Color.WHITE, Type.ROOK): "\u265C",
@@ -55,42 +57,39 @@ class Piece:
 
 class Board:
     def __init__(self):
-        self.square = []
+        self.board = []
         self.initialize_board()
-        self.display_board()
+        self.initialize_unicode_board()
 
     def initialize_board(self):
-        new_game_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        random_pos = "r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1"
-        for rank in new_game_fen.split("/"):
+        for rank in NEW_GAME_FEN.split("/"):
             for char in rank:
                 if char == " ":
                     break
                 elif char in "12345678":
-                    self.square.extend([None] * int(char))
+                    self.board.extend([None] * int(char))
                 else:
-                    self.square.append(
+                    self.board.append(
                         Piece(
                             type=Type(char.lower()),
                             color=Color.WHITE if char.isupper() else Color.BLACK,
                         )
                     )
 
-    def display_board(self):
-        for i, pieces in enumerate([self.square[x : x + 8] for x in range(0, 64, 8)]):
-            print(i, pieces)
-
-            for piece in pieces:
-                print(chrs.get())
-            row_strings = [
-                chrs.get(tile, chrs[(Color((i + j) % 2), Type.EMPTY)])
-                for j, tile in enumerate(piece)
-            ]
-            print("".join(row_strings))
+    def initialize_unicode_board(self):
+        self.unicode_board = []
+        for i, rank in enumerate([self.board[x : x + 8] for x in BOARD_RANGE]):
+            for j, piece in enumerate(rank):
+                unicode = (
+                    (piece.color, piece.type)
+                    if piece
+                    else (Color((i + j) % 2), Type.EMPTY)
+                )
+                self.unicode_board.append(unicode_pieces[unicode])
 
     def __repr__(self) -> str:
         return tabulate(
-            [self.square[x : x + 8] for x in range(0, 64, 8)],
+            [self.board[x : x + 8] for x in BOARD_RANGE],
             tablefmt="grid",
             stralign="center",
             headers=string.ascii_lowercase[:8],
